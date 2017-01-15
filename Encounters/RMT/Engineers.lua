@@ -15,9 +15,12 @@ local Locales = {
         ["unit.spark_plug"] = "Spark Plug",
         ["unit.cooling_turbine"] = "Cooling Turbine",
         ["unit.circle_telegraph"] = "Hostile Invisible Unit for Fields (1.2 hit radius)",
+        ["unit.air_current"] = "Air Current", --Prufa1
+        ["unit.ion_clash"] = "Ion Clash", --Prufa2
         -- Debuffs
         ["debuff.atomic_attraction"] = "Atomic Attraction",
         ["debuff.electroshock_vulnerability"] = "Electroshock Vulnerability",
+        ["debuff.ion_clash"] = "Ion Clash", --Prufa2
         -- Casts
         ["cast.electroshock"] = "Electroshock",
         ["cast.liquidate"] = "Liquidate",
@@ -42,6 +45,8 @@ local Locales = {
         ["label.sword_jump"] = "Sword Rocket Jump",
         ["label.gun_jump"] = "Gun Rocket Jump",
         ["label.gun_return"] = "Return to Gun Reminder",
+        ["label.air_current"] = "Air Current", --Prufa1
+        ["label.ion_clash"] = "Ion Clash", --Prufa2
     },
     ["deDE"] = {},
     ["frFR"] = {
@@ -85,6 +90,8 @@ local Locales = {
 
 local DEBUFF_ELECTROSHOCK_VULNERABILITY = 83798
 local DEBUFF_ATOMIC_ATTRACTION = 84053
+local DEBUFF_ION_CLASH = 84051 --Prufa2
+--local AIR_CURRENT = 84031 --Prufa1
 local BUFF_INSULATION = 83987
 local PLATFORM_BOUNDING_BOXES = {
     ["unit.cooling_turbine"] = { x_min = 249.19, x_max = 374.71, z_min = -893.52, z_max = -768.06 },
@@ -260,6 +267,12 @@ function Mod:new(o)
                 file = "info",
                 label = "label.gun_jump",
             },
+            gun_return = { --Prufa0
+                enable = false,
+                position = 7,
+                file = "info",
+                label = "label.gun_return",
+            },
         },
         icons = {
             vulnerability = {
@@ -303,6 +316,18 @@ function Mod:new(o)
                 thickness = 7,
                 color = "ffff0000",
                 label = "label.circle_telegraph",
+            },
+            air_current = { --Prufa1
+                enable = true,
+                thickness = 7,
+                color = "ffff0000",
+                label = "label.air_current",
+            },
+            ion_clash = { --Prufa2
+                enable = true,
+                thickness = 5,
+                color = "ffff0000",
+                label = "label.air_current",
             },
         },
         texts = {
@@ -350,6 +375,8 @@ function Mod:OnUnitCreated(nId, tUnit, sName, bInCombat)
         self.core:DrawText(nId, tUnit, self.config.texts.pillar, "", false, 50)
     elseif sName == self.L["unit.circle_telegraph"] then
         self.core:DrawPolygon(nId, tUnit, self.config.lines.circle_telegraph, 6.3, 0, 20)
+    elseif sName == self.L["unit.air_current"] then 									--Prufa1
+        self.core:DrawPolygon(nId, tUnit, self.config.lines.air_current, 5, 0, 20)      --Prufa1 (radius, rotation?, line count)
     end
 end
 
@@ -421,6 +448,8 @@ function Mod:OnBuffAdded(nId, nSpellId, sName, tData, sUnitName, nStack, nDurati
                 self.core:DrawIcon("atomic_attraction", tData.tUnit, self.config.icons.atomic_attraction, true)
             end
         end
+    elseif nSpellId == DEBUFF_ION_CLASH then                                         --Prufa2
+    	self.core:DrawPolygon(nId, tUnit, self.config.lines.ion_clash, 8, 0, 20)     --Prufa2
     end
 end
 
@@ -430,6 +459,9 @@ function Mod:OnBuffRemoved(nId, nSpellId, sName, tData, sUnitName)
 
         if tData.tUnit:IsThePlayer() then
             self.core:ShowAlert("GunReturn_"..tostring(nId), self.L["alert.gun_return"], self.config.alerts.gun_return)
+            if self.config.sounds.gun_return.enable then
+        		self.core:PlaySound(self.config.sounds.gun_return)
+        	end
         end
     elseif nSpellId == DEBUFF_ATOMIC_ATTRACTION then
         self.core:RemoveIcon("atomic_attraction")
@@ -439,6 +471,8 @@ function Mod:OnBuffRemoved(nId, nSpellId, sName, tData, sUnitName)
         end
     elseif nSpellId == BUFF_INSULATION and sUnitName == self.L["unit.fusion_core"] then
         self.core:AddTimer("atomic_attraction", self.L["debuff.atomic_attraction"], 23, self.config.timers.atomic_attraction)
+    elseif nSpellId == DEBUFF_ION_CLASH then --Prufa2
+    	self.core:RemovePolygon(nId)         --Prufa2
     end
 end
 

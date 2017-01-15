@@ -2683,7 +2683,7 @@ function LUI_BossMods:RemoveLine(Key)
             tDraw.nPixieIdFull = nil
         end
 
-        if next(tDraw.nPixieIdDot) then
+        if tDraw.nPixieIdDot and next(tDraw.nPixieIdDot) then
             for _, nPixieIdDot in next, tDraw.nPixieIdDot do
                 self.wndOverlay:DestroyPixie(nPixieIdDot)
             end
@@ -2818,7 +2818,7 @@ function LUI_BossMods:RemoveLineBetween(Key)
             tDraw.nPixieIdFull = nil
         end
 
-        if next(tDraw.nPixieIdDot) then
+        if tDraw.nPixieIdDot and next(tDraw.nPixieIdDot) then
             for _, nPixieIdDot in next, tDraw.nPixieIdDot do
                 self.wndOverlay:DestroyPixie(nPixieIdDot)
             end
